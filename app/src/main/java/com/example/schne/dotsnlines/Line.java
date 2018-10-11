@@ -102,6 +102,8 @@ public class Line {
 		}
 		
 		if (point1[index] - 1 > 0) {
+			// square1Partners form the square to the left or above *this* Line
+			// so shifted points get decremented
 			point1Shift1[index] = point1[index] - 1;
 			point2Shift1[index] = point2[index] - 1;
 			
@@ -110,6 +112,8 @@ public class Line {
 			square1Partners.add(new Line(point2Shift1, point2));
 		}
 		if (point1[index] + 1 < boardSize) {
+			// square2Partners form the square to the right or below *this* Line
+			// so shifted points get incremented
 			point1Shift2[index] = point1[index] + 1;
 			point2Shift2[index] = point2[index] + 1;
 			
