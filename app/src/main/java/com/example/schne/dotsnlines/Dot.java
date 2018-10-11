@@ -9,7 +9,7 @@ public class Dot {
 	// valid neighbours are either directly above, below, to the left or the right of *this* dot
 	private ArrayList<Dot> validNeighbours = new ArrayList<>();
 	
-	public Dot() {}
+	Dot() {}
 	
 	/**
 	 * Record dot as a valid neighbor
