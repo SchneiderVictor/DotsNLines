@@ -13,3 +13,9 @@ Disclaimer
 ----------
 
 This game is purely an Android Studio project. An APK will be generated once I feel it is more stable.
+
+What I've learned thus far
+-----------------
+
+1. Some better xml layout techniques (vertical/horizontal bias)
+2. How to dynamically add/modify views 
