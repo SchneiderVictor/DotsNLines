@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#505050</color>
+    <color name="colorAccent">#07F226</color>
+    <color name="boardColor">#FFFFFF</color>
+
+    <color name="colorPlayer1">#F22407</color>
+    <color name="colorPlayer2">#0738F2</color>
+
+    <color name="transparent">#00000000</color>
+</resources>

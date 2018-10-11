@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DotsNLines</string>
+    <string name="start_game">New game</string>
+    <string name="board_size">Select a board size</string>
+</resources>
