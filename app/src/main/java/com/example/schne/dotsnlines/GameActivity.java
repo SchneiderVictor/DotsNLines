@@ -18,37 +18,41 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * The Android Activity where the game is played
+ */
 public class GameActivity extends AppCompatActivity {
+	// values used to initialize the game board
+	// the vertical and horizontalBias difference between rows and columns
+	private static float biasDelta;
 	private static int boardSize;
-	private float biasDelta = 1f / boardSize;
-	private Button button1, button2;
-	private ConstraintLayout board;
-	private View player1ScoreView, player2ScoreView, scoreDivider;
+	
+	// values used for basic tracking of current game state
+	private boolean extraMove;
 	private boolean player1 = false;
+	private int player1Score = 0, player2Score = 0;
+	
+	// values used for more advanced features, such as validating moves
 	private ArrayList<Dot> dots = new ArrayList<>();
 	private ArrayList<Line> lines = new ArrayList<>();
 	private HashMap<Button, Dot> buttonDotHashMap = new HashMap<>();
-	private int currentColor;
+	
+	// Android Views to be manipulated
+	private Button button1, button2;
+	private ConstraintLayout board;
 	private Drawable currentPlayerDrawable;
-	private boolean extraMove;
-	private int player1Score = 0, player2Score = 0;
+	private View player1ScoreView, player2ScoreView, scoreDivider;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 		setContentView(R.layout.activity_game);
-		board = findViewById(R.id.board_layout);
-		player1ScoreView = findViewById(R.id.player1_score);
-		player2ScoreView = findViewById(R.id.player2_score);
-		scoreDivider = findViewById(R.id.score_divider);
-		
-//		getWindow().setEnterTransition(new Explode());
 		
 		ViewGroup scoreLayout = findViewById(R.id.score_layout);
 		AutoTransition transition = new AutoTransition();
 		transition.setDuration(1000);
 		
+		initializeViews();
 		initializeBoard();
 		
 		TransitionManager.beginDelayedTransition(scoreLayout, transition);
@@ -56,6 +60,14 @@ public class GameActivity extends AppCompatActivity {
 	
 	public static void setBoardSize(int size) {
 		boardSize = size;
+		biasDelta = 1f / boardSize;
+	}
+	
+	private void initializeViews() {
+		board = findViewById(R.id.board_layout);
+		player1ScoreView = findViewById(R.id.player1_score);
+		player2ScoreView = findViewById(R.id.player2_score);
+		scoreDivider = findViewById(R.id.score_divider);
 	}
 	
 	private void initializeBoard() {
@@ -63,6 +75,10 @@ public class GameActivity extends AppCompatActivity {
 		populateDots();
 	}
 	
+	/**
+	 * Populates the board with Buttons, while mapping Buttons to
+	 * Dot objects
+	 */
 	private void populateButtons() {
 		for (int row = 1; row < boardSize; row+= 1) {
 			for (int col = 1; col < boardSize; col+= 1) {
@@ -83,10 +99,16 @@ public class GameActivity extends AppCompatActivity {
 		}
 	}
 	
+	/**
+	 * Populates each Dot object with its neighbours:
+	 * above, below, left and right
+	 */
 	private void populateDots() {
 		for (int i = 0; i < dots.size(); i++) {
 			Dot neighbor;
 			
+			// dots.get(i - (boardSize - 1)) works out to be the Dot above dots.get(i),
+			// so on and so forth...
 			for (int index : new int[] {i - (boardSize - 1), i + (boardSize - 1), i - 1, i + 1}) {
 				if (index >= 0 && index < dots.size()) {
 					neighbor = dots.get(index);
@@ -103,6 +125,12 @@ public class GameActivity extends AppCompatActivity {
 		return dot1.isValidNeighbor(dot2);
 	}
 	
+	/**
+	 * Helper method for the animation when tapping a Button
+	 *
+	 * @param button the button that was tapped
+	 * @param finalState the Drawable which we want to describe the button at the end of the animation
+	 */
 	private void updateDot(final Button button, Drawable finalState) {
 		button.setBackground(finalState);
 		button.animate()
@@ -135,36 +163,61 @@ public class GameActivity extends AppCompatActivity {
 	}
 	
 	public void selectDot(View view) {
+		// If no start button has been selected for this move...
 		if (button1 == null) {
 			button1 = (Button) view;
 			
 			updateDot(button1, getDrawable(R.drawable.selected_dot));
 		} else if (view == button1) {
+			// if the start button is selected again, we count that as deselecting it
 			button1.setBackground(getDrawable(R.drawable.dots_background));
 			button1 = null;
 		} else if (button2 == null && isValidMove((Button) view)) {
+			// a valid end button was selected...
 			button2 = (Button) view;
-			int[] pos1 = getButtonPosition(button1);
-			int[] pos2 = getButtonPosition(button2);
-			Line newLine = new Line(pos1, pos2, boardSize);
 			
-			if (!lines.contains(newLine)) {
-				drawLineBetweenDots();
-				lines.add(newLine);
-				
-				int completeSquare = newLine.getCompleteSquare(lines);
-				extraMove = addScoreDot(completeSquare);
-				
-				updateScoreDivision();
-			}
+			makeMove();
 			
 			button1.setBackground(getDrawable(R.drawable.dots_background));
-			
 			button1 = null;
 			button2 = null;
+		} else {
+			// deselect the start button
+			selectDot(button1);
 		}
 	}
 	
+	/**
+	 * completes a move
+	 *
+	 * if the move has not been made, the line is drawn
+	 * and the score is updated (as well as the visual representation)
+	 */
+	private void makeMove() {
+		int[] pos1 = getButtonPosition(button1);
+		int[] pos2 = getButtonPosition(button2);
+		Line newLine = new Line(pos1, pos2, boardSize);
+		int completeSquare;
+		
+		// if the move has not already been made...
+		if (!lines.contains(newLine)) {
+			drawLineBetweenDots();
+			lines.add(newLine);
+			
+			completeSquare = newLine.getCompleteSquare(lines);
+			extraMove = addScoreDot(completeSquare);
+			
+			updateScoreDivision();
+		}
+	}
+	
+	/**
+	 * Draws a colored Button to represent who won the point.
+	 * The Button is placed within the corresponding square
+	 *
+	 * @param row row index at which the Button will need to be placed
+	 * @param col column index at which the Button will need to be placed
+	 */
 	private void drawScoreDot(float row, float col) {
 		ConstraintLayout newDotLayout = (ConstraintLayout) View.inflate(board.getContext(), R.layout.dot_layout, null);
 		Button newButton = newDotLayout.findViewById(R.id.dot);
@@ -177,6 +230,7 @@ public class GameActivity extends AppCompatActivity {
 		
 		newButton.setAlpha(0f);
 		
+		// the score Button (Dot) should not react to being tapped
 		newButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -268,7 +322,7 @@ public class GameActivity extends AppCompatActivity {
 		if (!extraMove) {
 			player1 = !player1;
 		}
-		currentColor = player1 ? getColor(R.color.colorPlayer1) : getColor(R.color.colorPlayer2);
+		int currentColor = player1 ? getColor(R.color.colorPlayer1) : getColor(R.color.colorPlayer2);
 		currentPlayerDrawable = player1 ? getDrawable(R.drawable.score_dot1) : getDrawable(R.drawable.score_dot2);
 		
 		newLine.setBackgroundColor(currentColor);
