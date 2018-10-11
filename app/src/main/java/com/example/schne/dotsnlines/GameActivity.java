@@ -207,7 +207,9 @@ public class GameActivity extends AppCompatActivity {
 			completeSquare = newLine.getCompleteSquare(lines);
 			extraMove = addScoreDot(completeSquare);
 			
-			updateScoreDivision();
+			if (completeSquare > 0) {
+				updateScoreDivision();
+			}
 		}
 	}
 	
@@ -248,6 +250,19 @@ public class GameActivity extends AppCompatActivity {
 		}
 	}
 	
+	
+	/**
+	 * calculates the row and column indices of score dots,
+	 * then draws them onto the board
+	 *
+	 * completeSquares == 0 --> no score dot
+	 * completeSquares == 1 --> score dot above(or to the left) of the drawn line
+	 * completeSquares == 2 --> score dot below(or to the right) of the drawn line
+	 * completeSquares == 3 --> both score dots
+	 *
+	 * @param completeSquares integer code representing which, if any, squares have been completed
+	 * @return true iff a point has been awarded/a score dot was drawn
+	 */
 	private boolean addScoreDot(int completeSquares) {
 		if (completeSquares == 0) {
 			return false;
@@ -256,24 +271,36 @@ public class GameActivity extends AppCompatActivity {
 		int[] pos2 = getButtonPosition(button2);
 		float row, col;
 		
+		// for when the drawn line is vertical
 		if (pos1[0] == pos2[0]) {
 			row = Math.min(pos1[1], pos2[1]) + 0.5f;
 			
+			// draw a score dot for completeSquares == 1 and completeSquares == 3
+			// score dot drawn to the left
 			if (completeSquares % 2 == 1) {
 				col = pos1[0] - 0.5f;
 				drawScoreDot(row, col);
 			}
+			
+			// draw a score dot for completeSquares == 2 and completeSquares == 3
+			// score dot drawn to the right
 			if (completeSquares - 1 > 0) {
 				col = pos1[0] + 0.5f;
 				drawScoreDot(row, col);
 			}
 		} else {
+			// for when the drawn line is vertical
 			col = Math.min(pos1[0], pos2[0]) + 0.5f;
 			
+			// draw a score dot for completeSquares == 1 and completeSquares == 3
+			// score dot drawn above
 			if (completeSquares % 2 == 1) {
 				row = pos1[1] - 0.5f;
 				drawScoreDot(row, col);
 			}
+			
+			// draw a score dot for completeSquares == 2 and completeSquares == 3
+			// score dot drawn below
 			if (completeSquares - 1 > 0) {
 				row = pos1[1] + 0.5f;
 				drawScoreDot(row, col);
@@ -283,6 +310,12 @@ public class GameActivity extends AppCompatActivity {
 		return true;
 	}
 	
+	/**
+	 * returns an int[] representing the Button's coordinates as (x, y)
+	 *
+	 * @param button tapped Button
+	 * @return Button's coordinates
+	 */
 	private int[] getButtonPosition(Button button) {
 		ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) button.getLayoutParams();
 		int xAxis = (int) (params.horizontalBias * boardSize);
@@ -290,11 +323,17 @@ public class GameActivity extends AppCompatActivity {
 		return new int[] {xAxis, yAxis};
 	}
 	
+	/**
+	 * Positions the newLine based on which buttons were tapped
+	 *
+	 * @param newLine the new View that was created
+	 */
 	private void setNewLineParams(View newLine) {
 		int[] button1Pos = getButtonPosition(button1);
 		int[] button2Pos = getButtonPosition(button2);
 		ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) newLine.getLayoutParams();
 		
+		// for a vertical line...
 		if (button1Pos[0] == button2Pos[0]) {
 			params.verticalBias = (biasDelta / 2f) + (biasDelta * Math.min(button1Pos[1], button2Pos[1]));
 			params.horizontalBias = (biasDelta * button1Pos[0]);
@@ -302,6 +341,7 @@ public class GameActivity extends AppCompatActivity {
 			params.width = 6;
 			params.height = (int) Math.abs(button1.getY() - button2.getY());
 		} else {
+			// for a horizontal line...
 			params.verticalBias = (biasDelta * button1Pos[1]);
 			params.horizontalBias = (biasDelta / 2f) + (biasDelta * Math.min(button1Pos[0], button2Pos[0]));
 			
@@ -312,6 +352,10 @@ public class GameActivity extends AppCompatActivity {
 		newLine.setLayoutParams(params);
 	}
 	
+	
+	/**
+	 * Draws and colors a line between two selected Buttons
+	 */
 	private void drawLineBetweenDots() {
 		ConstraintLayout newLineLayout = (ConstraintLayout) View.inflate(board.getContext(), R.layout.line_layout, null);
 		View newLine = newLineLayout.findViewById(R.id.line);
@@ -319,6 +363,8 @@ public class GameActivity extends AppCompatActivity {
 		
 		setNewLineParams(newLine);
 		
+		// player switching is done BEFORE choosing the color simply
+		// because player1 was initialized as false (indicating player 2)
 		if (!extraMove) {
 			player1 = !player1;
 		}
@@ -332,6 +378,9 @@ public class GameActivity extends AppCompatActivity {
 		extraMove = false;
 	}
 	
+	/**
+	 * Updates the visual representation of the score difference if a point has been earned
+	 */
 	private void updateScoreDivision() {
 		if (player1Score + player2Score == 0) {
 			return;
