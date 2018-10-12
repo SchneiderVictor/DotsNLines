@@ -9,6 +9,11 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+/**
+ * The Android Launcher Activity
+ *
+ * Used to allow the players to initialize their game
+ */
 public class HomeActivity extends AppCompatActivity {
 	TextView promptView;
 	NumberPicker numberPickerView;
@@ -24,6 +29,7 @@ public class HomeActivity extends AppCompatActivity {
 		sizeButton = findViewById(R.id.choose_size_button);
 		startButton = findViewById(R.id.start_game_button);
 		
+		// prepare views to be animated into position later
 		promptView.animate()
 				.translationY(100f)
 				.setDuration(500)
@@ -39,6 +45,7 @@ public class HomeActivity extends AppCompatActivity {
 				.setDuration(500)
 				.start();
 		
+		// initialize the NumberPicker
 		numberPickerView.setMaxValue(10);
 		numberPickerView.setMinValue(5);
 		numberPickerView.setWrapSelectorWheel(false);
@@ -50,6 +57,11 @@ public class HomeActivity extends AppCompatActivity {
 		});
 	}
 	
+	/**
+	 * updates the UI to allow players to pick the board size
+	 *
+	 * @param view the start game button
+	 */
 	public void chooseBoardSize(View view) {
 		view.animate()
 				.translationY(100f)
@@ -95,11 +107,20 @@ public class HomeActivity extends AppCompatActivity {
 				.start();
 	}
 	
+	/**
+	 * launches the GameActivity
+	 *
+	 * @param view the start game Button
+	 */
 	public void startGame(View view) {
 		int boardSize = numberPickerView.getValue();
 		final Intent intent = new Intent(getApplicationContext(), GameActivity.class);
 		GameActivity.setBoardSize(boardSize);
 		
+		
+		// allows an "exit animation"
+		// TODO: improve to allow views to reappear if players return to *this* Activity
+		/*
 		promptView.animate()
 				.translationY(100f)
 				.setDuration(500)
@@ -138,5 +159,7 @@ public class HomeActivity extends AppCompatActivity {
 					}
 				})
 				.start();
+				*/
+		startActivity(intent);
 	}
 }
