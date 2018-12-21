@@ -1,26 +1,25 @@
-package com.example.schne.dotsnlines;
+package com.example.schne.dotsnlines.activities;
 
 import android.animation.Animator;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
-import android.transition.Explode;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.example.schne.dotsnlines.R;
+import com.example.schne.dotsnlines.data.Dot;
+import com.example.schne.dotsnlines.data.Line;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * The Android Activity where the game is played
- */
 public class GameActivity extends AppCompatActivity {
 	// values used to initialize the game board
 	// the vertical and horizontalBias difference between rows and columns
@@ -42,25 +41,21 @@ public class GameActivity extends AppCompatActivity {
 	private ConstraintLayout board;
 	private Drawable currentPlayerDrawable;
 	private View player1ScoreView, player2ScoreView, scoreDivider;
+	private TextView player1ScoreLabel, player2ScoreLabel;
+	private TextView notifier;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
 		
-		ViewGroup scoreLayout = findViewById(R.id.score_layout);
-		AutoTransition transition = new AutoTransition();
-		transition.setDuration(1000);
+		Intent initializationData = getIntent();
+		
+		boardSize = initializationData.getIntExtra("boardSize", 5) + 1;
+		biasDelta = 1f / (float) boardSize;
 		
 		initializeViews();
 		initializeBoard();
-		
-		TransitionManager.beginDelayedTransition(scoreLayout, transition);
-	}
-	
-	public static void setBoardSize(int size) {
-		boardSize = size;
-		biasDelta = 1f / boardSize;
 	}
 	
 	private void initializeViews() {
@@ -68,6 +63,9 @@ public class GameActivity extends AppCompatActivity {
 		player1ScoreView = findViewById(R.id.player1_score);
 		player2ScoreView = findViewById(R.id.player2_score);
 		scoreDivider = findViewById(R.id.score_divider);
+		player1ScoreLabel = findViewById(R.id.player1_score_label);
+		player2ScoreLabel = findViewById(R.id.player2_score_label);
+		notifier = findViewById(R.id.notifier);
 	}
 	
 	private void initializeBoard() {
@@ -80,8 +78,8 @@ public class GameActivity extends AppCompatActivity {
 	 * Dot objects
 	 */
 	private void populateButtons() {
-		for (int row = 1; row < boardSize; row+= 1) {
-			for (int col = 1; col < boardSize; col+= 1) {
+		for (int row = 1; row < boardSize; row += 1) {
+			for (int col = 1; col < boardSize; col += 1) {
 				ConstraintLayout newDotLayout = (ConstraintLayout) View.inflate(board.getContext(), R.layout.dot_layout, null);
 				Button newButton = newDotLayout.findViewById(R.id.dot);
 				newDotLayout.removeView(newButton);
@@ -109,7 +107,7 @@ public class GameActivity extends AppCompatActivity {
 			
 			// dots.get(i - (boardSize - 1)) works out to be the Dot above dots.get(i),
 			// so on and so forth...
-			for (int index : new int[] {i - (boardSize - 1), i + (boardSize - 1), i - 1, i + 1}) {
+			for (int index : new int[]{i - (boardSize - 1), i + (boardSize - 1), i - 1, i + 1}) {
 				if (index >= 0 && index < dots.size()) {
 					neighbor = dots.get(index);
 					dots.get(i).addNeighbor(neighbor);
@@ -128,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
 	/**
 	 * Helper method for the animation when tapping a Button
 	 *
-	 * @param button the button that was tapped
+	 * @param button     the button that was tapped
 	 * @param finalState the Drawable which we want to describe the button at the end of the animation
 	 */
 	private void updateDot(final Button button, Drawable finalState) {
@@ -189,7 +187,7 @@ public class GameActivity extends AppCompatActivity {
 	
 	/**
 	 * completes a move
-	 *
+	 * <p>
 	 * if the move has not been made, the line is drawn
 	 * and the score is updated (as well as the visual representation)
 	 */
@@ -210,6 +208,8 @@ public class GameActivity extends AppCompatActivity {
 			if (completeSquare > 0) {
 				updateScoreDivision();
 			}
+			
+			updateNotifier();
 		}
 	}
 	
@@ -254,7 +254,7 @@ public class GameActivity extends AppCompatActivity {
 	/**
 	 * calculates the row and column indices of score dots,
 	 * then draws them onto the board
-	 *
+	 * <p>
 	 * completeSquares == 0 --> no score dot
 	 * completeSquares == 1 --> score dot above(or to the left) of the drawn line
 	 * completeSquares == 2 --> score dot below(or to the right) of the drawn line
@@ -320,7 +320,7 @@ public class GameActivity extends AppCompatActivity {
 		ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) button.getLayoutParams();
 		int xAxis = (int) (params.horizontalBias * boardSize);
 		int yAxis = (int) (params.verticalBias * boardSize);
-		return new int[] {xAxis, yAxis};
+		return new int[]{xAxis, yAxis};
 	}
 	
 	/**
@@ -349,6 +349,7 @@ public class GameActivity extends AppCompatActivity {
 			params.height = 6;
 		}
 		
+		
 		newLine.setLayoutParams(params);
 	}
 	
@@ -357,9 +358,10 @@ public class GameActivity extends AppCompatActivity {
 	 * Draws and colors a line between two selected Buttons
 	 */
 	private void drawLineBetweenDots() {
-		ConstraintLayout newLineLayout = (ConstraintLayout) View.inflate(board.getContext(), R.layout.line_layout, null);
+		ConstraintLayout newLineLayout = (ConstraintLayout) View.inflate(this, R.layout.line_layout, null);
 		View newLine = newLineLayout.findViewById(R.id.line);
 		newLineLayout.removeView(newLine);
+		board.addView(newLine);
 		
 		setNewLineParams(newLine);
 		
@@ -372,8 +374,6 @@ public class GameActivity extends AppCompatActivity {
 		currentPlayerDrawable = player1 ? getDrawable(R.drawable.score_dot1) : getDrawable(R.drawable.score_dot2);
 		
 		newLine.setBackgroundColor(currentColor);
-		
-		board.addView(newLine);
 		
 		extraMove = false;
 	}
@@ -388,20 +388,47 @@ public class GameActivity extends AppCompatActivity {
 		ConstraintSet newState = new ConstraintSet();
 		float finalPosition = (float) player1Score / ((float) player1Score + (float) player2Score);
 		
-		if (player1ScoreView.getAlpha() == 0f) {
-			player1ScoreView.animate()
-					.alpha(1f)
-					.setDuration(1000)
-					.start();
-			
-			player2ScoreView.animate()
-					.alpha(1f)
-					.setDuration(1000)
-					.start();
+		player1ScoreLabel = findViewById(R.id.player1_score_label);
+		player2ScoreLabel = findViewById(R.id.player2_score_label);
+		
+		player1ScoreLabel.setText(Integer.toString(player1Score));
+		player2ScoreLabel.setText(Integer.toString(player2Score));
+		
+		if (finalPosition == 0f || finalPosition == 1f) {
+			finalPosition = 0.5f;
+			int currentPlayerColor = player1 ? R.color.colorPlayer1 : R.color.colorPlayer2;
+			player1ScoreView.setBackgroundTintList(getColorStateList(currentPlayerColor));
+			player2ScoreView.setBackgroundTintList(getColorStateList(currentPlayerColor));
+		} else {
+			player1ScoreView.setBackgroundTintList(getColorStateList(R.color.colorPlayer1));
+			player2ScoreView.setBackgroundTintList(getColorStateList(R.color.colorPlayer2));
 		}
 		
 		newState.clone((ConstraintLayout) findViewById(R.id.score_layout));
 		newState.setHorizontalBias(R.id.score_divider, finalPosition);
+		
+		TransitionManager.beginDelayedTransition((ConstraintLayout) findViewById(R.id.score_layout));
 		newState.applyTo((ConstraintLayout) findViewById(R.id.score_layout));
+	}
+	
+	private void updateNotifier() {
+		if (player1Score + player2Score == (boardSize - 2) * (boardSize - 2)) {
+			if (player1Score > player2Score) {
+				notifier.setText(R.string.player_1_wins);
+				notifier.setTextColor(getColor(R.color.colorPlayer1));
+			} else if (player2Score > player1Score) {
+				notifier.setText(R.string.player_2_wins);
+				notifier.setTextColor(getColor(R.color.colorPlayer2));
+			} else {
+				notifier.setText(R.string.tie_game);
+				notifier.setTextColor(getColor(R.color.colorAccent));
+			}
+		} else if (player1 == extraMove) {
+			notifier.setText(R.string.player_1_turn);
+			notifier.setTextColor(getColor(R.color.colorPlayer1));
+		} else {
+			notifier.setText(R.string.player_2_turn);
+			notifier.setTextColor(getColor(R.color.colorPlayer2));
+		}
 	}
 }

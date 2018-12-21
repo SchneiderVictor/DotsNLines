@@ -1,4 +1,4 @@
-package com.example.schne.dotsnlines;
+package com.example.schne.dotsnlines.data;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,8 @@ public class Dot {
 	// valid neighbours are either directly above, below, to the left or the right of *this* dot
 	private ArrayList<Dot> validNeighbours = new ArrayList<>();
 	
-	Dot() {}
+	public Dot() {
+	}
 	
 	/**
 	 * Record dot as a valid neighbor

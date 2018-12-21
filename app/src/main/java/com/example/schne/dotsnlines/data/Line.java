@@ -1,4 +1,4 @@
-package com.example.schne.dotsnlines;
+package com.example.schne.dotsnlines.data;
 
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class Line {
 	private ArrayList<Line> square1Partners = new ArrayList<>();
 	private ArrayList<Line> square2Partners = new ArrayList<>();
 	
-	Line(int[] point1, int[] point2, int boardSize) {
+	public Line(int[] point1, int[] point2, int boardSize) {
 		this.point1 = point1;
 		this.point2 = point2;
 		this.boardSize = boardSize;
@@ -38,7 +38,7 @@ public class Line {
 	/**
 	 * Returns a integer code representing which, if any, square(s) are completed by
 	 * *this* Line
-	 *
+	 * <p>
 	 * 0 == no squares
 	 * 1 == square with square1Partners
 	 * 2 == square with square2Partners

@@ -2,4 +2,13 @@
     <string name="app_name">DotsNLines</string>
     <string name="start_game">New game</string>
     <string name="board_size">Select a board size</string>
+    <string name="instructions_label">HOW TO PLAY</string>
+    <string name="board_size_prompt">Please select a board size</string>
+    <string name="score_placeholder">0</string>
+    <string name="points_label">\ point(s)</string>
+    <string name="player_1_turn">Player 1\'s turn!</string>
+    <string name="player_2_turn">Player 2\'s turn!</string>
+    <string name="tie_game">It\'s a tie!</string>
+    <string name="player_1_wins">Player 1 Won!</string>
+    <string name="player_2_wins">Player 2 Won!</string>
 </resources>
