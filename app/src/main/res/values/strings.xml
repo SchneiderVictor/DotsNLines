@@ -11,4 +11,46 @@
     <string name="tie_game">It\'s a tie!</string>
     <string name="player_1_wins">Player 1 Won!</string>
     <string name="player_2_wins">Player 2 Won!</string>
+    <string name="page_label_footer">/ 6</string>
+    <string name="how_to_play_figure">how to play figure</string>
+
+    <string name="instruction_1">Welcome to DotsNLines! The goal of the game is to score more
+    points than your opponent by "closing" more squares.
+
+    \n\nPlease swipe through the pages for more instructions on how to play!</string>
+
+    <string name="instruction_2">To begin your move, tap any of the grey dots. It will then turn
+        green to indicate the first "end-point" for your move. Then, select a grey dot directly
+        adjacent to the green one (directly above, below, to the left or to the right).
+
+        \n\nTap the green dot again to cancel that move.</string>
+
+    <string name="instruction_3">To score a point, you must "close" a 1X1 square. A dot of your
+        color will then appear to indicate that the square has been awarded to you as a point and the
+        meter at the bottom of the board will update to reflect the score difference.
+
+        \n\nPlease note that once a score is awarded, that 1X1 square can no longer be used to
+        earn points.
+    </string>
+
+    <string name="instruction_4">Once you score a point, you earn an extra move and can continue
+        making moves until you do not earn a point.
+
+        \n\nPlease note that though you may be able find an opportunity to earn 2 points on one
+        move (two adjacent 1X1 squares), this will still only earn you ONE extra move.
+    </string>
+
+    <string name="instruction_5">Plan ahead and play strategically! The larger the board, the more
+        opportunities to score (or to help your opponent find a streak!)
+    </string>
+
+    <string name="instruction_6">The game ends when all possible moves have been exhausted.
+
+        \n\nDepending on the size of the board, a tie may be possible, however in most cases, the
+        game will end with one player having more points than the other. The player with the most
+        points wins!
+
+        \n\nAnd most importantly, ENJOY!
+    </string>
+    <string name="return_to_menu">return to menu</string>
 </resources>

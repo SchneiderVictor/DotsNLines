@@ -43,6 +43,7 @@ public class GameActivity extends AppCompatActivity {
 	private View player1ScoreView, player2ScoreView, scoreDivider;
 	private TextView player1ScoreLabel, player2ScoreLabel;
 	private TextView notifier;
+	private Button backToMenuButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class GameActivity extends AppCompatActivity {
 		player1ScoreLabel = findViewById(R.id.player1_score_label);
 		player2ScoreLabel = findViewById(R.id.player2_score_label);
 		notifier = findViewById(R.id.notifier);
+		backToMenuButton = findViewById(R.id.back_menu_button);
 	}
 	
 	private void initializeBoard() {
@@ -411,6 +413,12 @@ public class GameActivity extends AppCompatActivity {
 		newState.applyTo((ConstraintLayout) findViewById(R.id.score_layout));
 	}
 	
+	public void returnToMenu(View view) {
+		Intent intent = new Intent(this, MenuActivity.class);
+		
+		startActivity(intent);
+	}
+	
 	private void updateNotifier() {
 		if (player1Score + player2Score == (boardSize - 2) * (boardSize - 2)) {
 			if (player1Score > player2Score) {
@@ -423,6 +431,8 @@ public class GameActivity extends AppCompatActivity {
 				notifier.setText(R.string.tie_game);
 				notifier.setTextColor(getColor(R.color.colorAccent));
 			}
+			
+			backToMenuButton.setVisibility(View.VISIBLE);
 		} else if (player1 == extraMove) {
 			notifier.setText(R.string.player_1_turn);
 			notifier.setTextColor(getColor(R.color.colorPlayer1));
